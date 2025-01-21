@@ -11,11 +11,21 @@
 }
 
 .heading--h2 {
-	@apply text-5xl leading-tight;
+	font-size: clamp(
+		theme("fontSize.3xl"),
+		1.7573rem + 1.0356vw,
+		theme("fontSize.5xl")
+	);
+	@apply leading-tight;
 }
 
 .heading--h3 {
-	@apply text-4xl leading-snug;
+	font-size: clamp(
+		theme("fontSize.2xl"),
+		1.318rem + 0.7767vw,
+		theme("fontSize.4xl")
+	);
+	@apply leading-snug;
 }
 
 .body-large {

@@ -7,7 +7,7 @@
 			<nav>
 				<ul class="flex space-x-5">
 					<li v-for="link in settings.data.navigation[0].link" :key="link.key">
-						<a :href="link.url" :target="link.target">{{ link.text }}</a>
+						<PrismicLink :field="link" />
 					</li>
 				</ul>
 			</nav>
