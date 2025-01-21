@@ -3,14 +3,17 @@ module.exports = {
 	theme: {
 		container: {
 			center: true,
+			padding: "1rem",
+		},
+		fontFamily: {
+			body: ["Nunito Sans Variable", "sans-serif"],
+			heading: ["Nunito Variable", "sans-serif"],
 		},
 		extend: {
-			fontFamily: {
-				body: ["Nunito Sans Variable", "sans-serif"],
-				heading: ["Nunito Variable", "sans-serif"],
-			},
 			colors: {
 				primary: "#0E7490",
+				"primary-hover": "#0c6179",
+				body: "#334155",
 			},
 		},
 	},

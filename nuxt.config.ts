@@ -20,7 +20,11 @@ export default defineNuxtConfig({
 		},
 	},
 
-	css: ["@fontsource-variable/nunito", "@fontsource-variable/nunito-sans"],
+	css: [
+		"@fontsource-variable/nunito",
+		"@fontsource-variable/nunito-sans",
+		"@/assets/style.css",
+	],
 	modules: ["@nuxtjs/prismic", "@nuxtjs/tailwindcss"],
 
 	prismic: {

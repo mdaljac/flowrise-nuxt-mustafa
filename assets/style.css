@@ -1,0 +1,40 @@
+.heading {
+	@apply font-bold leading-tight font-heading tracking-tight;
+}
+
+.heading--h1 {
+	font-size: clamp(
+		theme("fontSize.5xl"),
+		2.6359rem + 1.5534vw,
+		theme("fontSize.7xl")
+	);
+}
+
+.heading--h2 {
+	@apply text-5xl leading-tight;
+}
+
+.heading--h3 {
+	@apply text-4xl leading-snug;
+}
+
+.body-large {
+	font-size: clamp(
+		theme("fontSize.lg"),
+		1.034rem + 0.3883vw,
+		theme("fontSize.2xl")
+	);
+	@apply leading-relaxed;
+}
+
+.body-normal {
+	@apply text-base;
+}
+
+.btn {
+	@apply px-20 py-3 rounded-full font-heading font-bold tracking-wider transition-colors;
+}
+
+.btn--primary {
+	@apply bg-primary text-white hover:bg-primary-hover;
+}
