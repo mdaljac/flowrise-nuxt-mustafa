@@ -14,6 +14,7 @@ module.exports = {
 				primary: "#0E7490",
 				"primary-hover": "#0c6179",
 				body: "#334155",
+				gray: "#D2D6DC",
 			},
 		},
 	},

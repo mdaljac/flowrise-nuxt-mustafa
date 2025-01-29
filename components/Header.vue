@@ -9,6 +9,9 @@
 					<li v-for="link in settings.data.navigation[0].link" :key="link.key">
 						<PrismicLink :field="link" />
 					</li>
+					<li>
+						<NuxtLink to="/products">Products</NuxtLink>
+					</li>
 				</ul>
 			</nav>
 		</div>
