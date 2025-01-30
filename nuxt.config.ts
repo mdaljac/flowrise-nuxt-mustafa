@@ -25,7 +25,7 @@ export default defineNuxtConfig({
 		"@fontsource-variable/nunito-sans",
 		"@/assets/style.css",
 	],
-	modules: ["@nuxtjs/prismic", "@nuxtjs/tailwindcss"],
+	modules: ["@nuxtjs/prismic", "@nuxtjs/tailwindcss", "@nuxt/image"],
 
 	prismic: {
 		endpoint: apiEndpoint || repositoryName,
@@ -43,5 +43,9 @@ export default defineNuxtConfig({
 				},
 			],
 		},
+	},
+
+	image: {
+		prismic: {},
 	},
 });
