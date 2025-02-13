@@ -31,7 +31,7 @@
 					<!-- search by price min/max -->
 					<div class="space-y-2">
 						<span>Price</span>
-						<div class="grid grid-cols-1 lg:grid-cols-2 gap-2 lg:gap-6">
+						<div class="grid grid-cols-1 lg:grid-cols-3 gap-2 lg:gap-6">
 							<input
 								v-model="filters.priceMin"
 								type="number"
@@ -46,6 +46,12 @@
 								step="100"
 								placeholder="Maximum price"
 								class="border-gray border outline-none rounded-md p-2" />
+							<button
+								class="bg-blue-dark text-white rounded-md"
+								id="filterBtn"
+								@click="getItems(1)">
+								Search
+							</button>
 						</div>
 					</div>
 				</div>
@@ -87,92 +93,58 @@
 			<div
 				v-if="products?.next_page !== null || products?.prev_page !== null"
 				class="flex justify-between border-t border-gray pt-5 lg:pt-0">
-				<NuxtLink
-					:to="`/products?page=${prevPageNumber}`"
+				<button
+					@click="getItems(products?.page - 1)"
 					class="font-bold flex items-center gap-x-3"
-					:class="products?.prev_page ? '' : 'pointer-events-none text-gray'"
-					><LeftArrow class="w-5" /><span>Prev</span></NuxtLink
-				>
+					:class="products?.prev_page ? '' : 'pointer-events-none text-gray'">
+					<LeftArrow class="w-5" /><span>Prev</span>
+				</button>
 				<ul class="hidden lg:flex justify-center gap-10 flex-1 pt-5 relative">
 					<li
-						v-for="page in products.total_pages"
+						v-for="page in products?.total_pages"
 						:key="page"
 						class="before:absolute before:top-0 before:w-10 before:h-0.5 before:bg-blue-light before:opacity-0"
 						:class="
-							products.page === page ? 'text-blue-light before:opacity-100' : ''
+							products?.page === page
+								? 'text-blue-light before:opacity-100'
+								: ''
 						">
-						<NuxtLink :to="`/products?page=${page}`">{{ page }}</NuxtLink>
+						<button @click="getItems(page)">
+							{{ page }}
+						</button>
 					</li>
 				</ul>
-				<NuxtLink
-					:to="`/products?page=${nextPageNumber}`"
+				<button
+					@click="getItems(products?.page + 1)"
 					class="font-bold flex items-center gap-x-3"
-					:class="products?.next_page ? '' : 'pointer-events-none text-gray'"
-					><span>Next</span><RightArrow class="w-5"
-				/></NuxtLink>
+					:class="products?.next_page ? '' : 'pointer-events-none text-gray'">
+					<span>Next</span><RightArrow class="w-5" />
+				</button>
 			</div>
 		</div>
 	</Bounded>
 </template>
 
 <script setup lang="ts">
-import debounce from "lodash.debounce";
-import isEqual from "lodash/isEqual"; // If using isEqual
 import type { Filters } from "~~/types/custom-types";
 
 const prismic = usePrismic();
-const route = useRoute();
 
 const filtersVisibleManual = ref(false);
 const isLg = computed(() => useBreakpoint().greaterOrEqual("lg").value);
 const filtersVisible = computed(() => filtersVisibleManual.value || isLg.value);
 
-// 1st version: Add product category and select products for that category
-// categories and corresponding products
-const { data: categories } = await useAsyncData("product_category", () =>
-	prismic.client.getAllByType("product_category", {
-		fetch: ["product_category.title", "product_category.products"],
-		fetchLinks: "product.title",
-	}),
-);
-
-const pageNumber = computed<number>(() => {
-	const pageQuery = route.query.page;
-
-	if (pageQuery === undefined) {
-		return 1; // Default to page 1 if not provided
-	}
-
-	const parsedPage = Number(pageQuery);
-
-	if (isNaN(parsedPage) || parsedPage < 1) {
-		return 1; // Default to page 1 if parsing fails or page is invalid
-	}
-
-	return parsedPage;
-});
 const pageSize = ref(2);
 
-// 2nd version: Add product and select category for each added product
 const { data: products } = await useAsyncData("products", () =>
 	prismic.client.getByType("product", {
 		fetchLinks: "product_category.title",
-		page: pageNumber.value,
+		page: 1,
 		pageSize: pageSize.value,
 	}),
 );
 
 // const { data: tags } = useAsyncData("tags", () => prismic.client.getTags());
-
-// set initially
-const prevPageNumber = ref<number | null>(
-	products.value?.page === 1 ? null : products.value?.page - 1,
-);
-const nextPageNumber = ref<number | null>(
-	products.value?.page === products.value?.total_pages
-		? null
-		: products.value?.page + 1,
-);
 
 const filters = reactive({
 	// tag: "",
@@ -181,47 +153,30 @@ const filters = reactive({
 	priceMax: null,
 });
 
-let previousFilters = { ...filters }; // Initialize previousFilters
-let resetPageNumber = false;
+const getItems = async (pageNumber?: number) => {
+	const { searchName, priceMin, priceMax } = filters;
 
-watch(
-	[filters, pageNumber],
-	debounce(async ([newFilters, newPageNumber]: [Filters, number]) => {
-		const { searchName, priceMin, priceMax } = newFilters;
+	if (products.value?.page === undefined) {
+	}
 
-		// Compare newFilters with previousFilters
-		if (!isEqual(newFilters, previousFilters)) {
-			previousFilters = { ...filters };
-			resetPageNumber = true;
-		}
+	const response = await prismic.client.get({
+		filters: [
+			prismic.filter.fulltext("my.product.address", searchName),
+			prismic.filter.numberGreaterThan(
+				"my.product.price",
+				priceMin ? priceMin - 1 : 1000,
+			),
+			prismic.filter.numberLessThan(
+				"my.product.price",
+				priceMax ? priceMax + 1 : 100000000,
+			),
+		],
+		page: pageNumber,
+		pageSize: pageSize.value,
+	});
 
-		const response = await prismic.client.get({
-			filters: [
-				prismic.filter.fulltext("my.product.address", searchName),
-				prismic.filter.numberGreaterThan(
-					"my.product.price",
-					priceMin ? priceMin - 1 : 1000,
-				),
-				prismic.filter.numberLessThan(
-					"my.product.price",
-					priceMax ? priceMax + 1 : 100000000,
-				),
-			],
-			page: resetPageNumber ? 1 : pageNumber.value, // Use the potentially reset pageNumber
-			pageSize: pageSize.value,
-		});
-
-		products.value = response;
-		resetPageNumber = false;
-
-		prevPageNumber.value =
-			products.value?.page === 1 ? null : products.value?.page - 1;
-		nextPageNumber.value =
-			products.value?.page === products.value?.total_pages
-				? null
-				: products.value?.page + 1;
-	}, 500),
-);
+	products.value = response;
+};
 </script>
 
 <style lang="scss" scoped></style>
