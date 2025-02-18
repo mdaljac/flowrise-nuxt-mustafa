@@ -53,6 +53,6 @@ export default defineNuxtConfig({
 	},
 
 	image: {
-		prismic: {},
+		provider: "prismic",
 	},
 });
