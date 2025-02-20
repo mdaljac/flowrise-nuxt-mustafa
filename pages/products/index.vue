@@ -47,7 +47,7 @@
 								placeholder="Maximum price"
 								class="border-gray border outline-none rounded-md p-2" />
 							<button
-								class="bg-blue-dark text-white rounded-md"
+								class="bg-blue-dark text-white rounded-md py-2"
 								id="filterBtn"
 								@click="getItems(1)">
 								Search
@@ -89,38 +89,25 @@
 				</ul>
 			</div>
 
-			<!-- pagination -->
-			<div
-				v-if="products?.next_page !== null || products?.prev_page !== null"
-				class="flex justify-between border-t border-gray pt-5 lg:pt-0">
-				<button
-					@click="getItems(products?.page - 1)"
-					class="font-bold flex items-center gap-x-3"
-					:class="products?.prev_page ? '' : 'pointer-events-none text-gray'">
-					<LeftArrow class="w-5" /><span>Prev</span>
-				</button>
-				<ul class="hidden lg:flex justify-center gap-10 flex-1 pt-5 relative">
-					<li
-						v-for="page in products?.total_pages"
-						:key="page"
-						class="before:absolute before:top-0 before:w-10 before:h-0.5 before:bg-blue-light before:opacity-0"
-						:class="
-							products?.page === page
-								? 'text-blue-light before:opacity-100'
-								: ''
-						">
-						<button @click="getItems(page)">
-							{{ page }}
-						</button>
-					</li>
-				</ul>
-				<button
-					@click="getItems(products?.page + 1)"
-					class="font-bold flex items-center gap-x-3"
-					:class="products?.next_page ? '' : 'pointer-events-none text-gray'">
-					<span>Next</span><RightArrow class="w-5" />
-				</button>
-			</div>
+			<vue-awesome-paginate
+				:total-items="products.total_results_size"
+				:items-per-page="pageSize"
+				:max-pages-shown="4"
+				v-model="currentPage"
+				@click="getItems">
+				<template #prev-button>
+					<span class="flex items-center gap-x-3">
+						<LeftArrow class="w-5" />
+						<span>Prev</span>
+					</span>
+				</template>
+				<template #next-button>
+					<span class="flex items-center gap-x-3">
+						<span>Next</span>
+						<RightArrow class="w-5" />
+					</span>
+				</template>
+			</vue-awesome-paginate>
 		</div>
 	</Bounded>
 </template>
@@ -134,7 +121,8 @@ const filtersVisibleManual = ref(false);
 const isLg = computed(() => useBreakpoint().greaterOrEqual("lg").value);
 const filtersVisible = computed(() => filtersVisibleManual.value || isLg.value);
 
-const pageSize = ref(2);
+const currentPage = ref(1);
+const pageSize = ref(5);
 
 const { data: products } = await useAsyncData("products", () =>
 	prismic.client.getByType("product", {
@@ -179,4 +167,35 @@ const getItems = async (pageNumber?: number) => {
 };
 </script>
 
-<style lang="scss" scoped></style>
+<style>
+.pagination-container {
+	@apply flex gap-10 w-full justify-center items-center relative border-t border-gray pt-5 lg:pt-0;
+
+	li:first-of-type {
+		@apply absolute left-0;
+	}
+	li:last-of-type {
+		@apply absolute right-0;
+	}
+
+	li:has(
+			.number-buttons,
+			.first-button,
+			.last-button,
+			.starting-breakpoint-button,
+			.ending-breakpoint-button
+		) {
+		@apply hidden lg:block;
+	}
+
+	li:has(.number-buttons, .first-button, .last-button) {
+		@apply before:absolute before:top-0 before:w-10 before:h-0.5 before:bg-blue-light before:opacity-0 pt-5;
+	}
+	li:has(.number-buttons.active-page) {
+		@apply before:opacity-100;
+	}
+	li:has(.starting-breakpoint-button, .ending-breakpoint-button) {
+		@apply pt-5;
+	}
+}
+</style>
