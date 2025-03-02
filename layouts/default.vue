@@ -8,7 +8,7 @@
 	</div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 const settings = await useSettings();
 const { asImageSrc } = usePrismic();
 

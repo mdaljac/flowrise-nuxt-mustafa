@@ -63,28 +63,7 @@
 						v-for="product in products?.results"
 						:key="product.id"
 						class="group">
-						<NuxtLink :to="`/products/${product.uid}`">
-							<article
-								class="bg-white shadow-lg rounded-lg overflow-hidden h-full">
-								<!-- <PrismicImage :field="product.data.gallery[0].image" /> -->
-								<div class="overflow-hidden">
-									<NuxtImg
-										:src="product.data.gallery[0].image.url"
-										class="w-full group-hover:scale-105 transition-transform duration-300"
-										sizes="100vw md:50vw lg:33vw 2xl:25vw"
-										loading="lazy">
-									</NuxtImg>
-								</div>
-								<div class="p-4">
-									<span>{{ product.data.address }}</span>
-									<h3 class="heading heading--h3">{{ product.data.title }}</h3>
-									<p>{{ product.data.description[0].text }}</p>
-									<div class="mt-3">
-										<span>{{ product.data.price }}</span>
-									</div>
-								</div>
-							</article>
-						</NuxtLink>
+						<Product :item="product" />
 					</li>
 				</ul>
 			</div>
